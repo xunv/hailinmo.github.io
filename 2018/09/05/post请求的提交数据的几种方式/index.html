@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.0.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"iyue.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.9.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<meta name="description" content="前言HTTP&#x2F;1.1 协议规定的 HTTP 请求方法有 OPTIONS、GET、HEAD、POST、PUT、DELETE、TRACE、CONNECT 这几种。其中 POST 一般用来向服务端提交数据，本文主要讨论 POST 提交数据的几种方式。我们知道，HTTP 协议是以 ASCII 码传输，建立在 TCP&#x2F;IP 协议之上的应用层规范。规范把 HTTP 请求分为三个部分：状态行、请求头、消息主体。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="post请求的提交数据的几种方式">
+<meta property="og:url" content="http://iyue.top/2018/09/05/post%E8%AF%B7%E6%B1%82%E7%9A%84%E6%8F%90%E4%BA%A4%E6%95%B0%E6%8D%AE%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/index.html">
+<meta property="og:site_name" content="山外小楼">
+<meta property="og:description" content="前言HTTP&#x2F;1.1 协议规定的 HTTP 请求方法有 OPTIONS、GET、HEAD、POST、PUT、DELETE、TRACE、CONNECT 这几种。其中 POST 一般用来向服务端提交数据，本文主要讨论 POST 提交数据的几种方式。我们知道，HTTP 协议是以 ASCII 码传输，建立在 TCP&#x2F;IP 协议之上的应用层规范。规范把 HTTP 请求分为三个部分：状态行、请求头、消息主体。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-09-05T12:00:13.000Z">
+<meta property="article:modified_time" content="2022-01-09T08:17:42.025Z">
+<meta property="article:author" content="萌新">
+<meta property="article:tag" content="django">
+<meta property="article:tag" content="http">
+<meta property="article:tag" content="post">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://iyue.top/2018/09/05/post%E8%AF%B7%E6%B1%82%E7%9A%84%E6%8F%90%E4%BA%A4%E6%95%B0%E6%8D%AE%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://iyue.top/2018/09/05/post%E8%AF%B7%E6%B1%82%E7%9A%84%E6%8F%90%E4%BA%A4%E6%95%B0%E6%8D%AE%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/","path":"2018/09/05/post请求的提交数据的几种方式/","title":"post请求的提交数据的几种方式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>post请求的提交数据的几种方式 | 山外小楼</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">山外小楼</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">前端攻略</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E5%87%BA%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">引出问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#application-x-www-form-urlencoded"><span class="nav-number">3.</span> <span class="nav-text">application&#x2F;x-www-form-urlencoded</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#application-json"><span class="nav-number">4.</span> <span class="nav-text">application&#x2F;json</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#multipart-form-data"><span class="nav-number">5.</span> <span class="nav-text">multipart&#x2F;form-data</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#text-plain-text-json-xml-html"><span class="nav-number">6.</span> <span class="nav-text">text&#x2F;plain (text&#x2F;json&#x2F;xml&#x2F;html)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#binary"><span class="nav-number">7.</span> <span class="nav-text">binary</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">萌新</p>
+  <div class="site-description" itemprop="description">我是萌新</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://iyue.top/2018/09/05/post%E8%AF%B7%E6%B1%82%E7%9A%84%E6%8F%90%E4%BA%A4%E6%95%B0%E6%8D%AE%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="萌新">
+      <meta itemprop="description" content="我是萌新">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="山外小楼">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          post请求的提交数据的几种方式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-09-05 20:00:13" itemprop="dateCreated datePublished" datetime="2018-09-05T20:00:13+08:00">2018-09-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-01-09 16:17:42" itemprop="dateModified" datetime="2022-01-09T16:17:42+08:00">2022-01-09</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>HTTP/1.1 协议规定的 HTTP 请求方法有 OPTIONS、GET、HEAD、POST、PUT、DELETE、TRACE、CONNECT 这几种。其中 POST 一般用来向服务端提交数据，本文主要讨论 POST 提交数据的几种方式。<br>我们知道，HTTP 协议是以 ASCII 码传输，建立在 TCP/IP 协议之上的应用层规范。规范把 HTTP 请求分为三个部分：状态行、请求头、消息主体。<br>协议规定 POST 提交的数据必须放在消息主体（entity-body）中，但协议并没有规定数据必须使用什么编码方式。实际上，开发者完全可以自己决定消息主体的格式，只要最后发送的 HTTP 请求满足上面的格式就可以。<br>但是，数据发送出去，还要服务端解析成功才有意义。一般服务端语言如 php、python 等，以及它们的 framework，都内置了自动解析常见数据格式的功能。服务端通常是根据请求头（headers）中的 Content-Type 字段来获知请求中的消息主体是用何种方式编码，再对主体进行解析。所以说到 POST 提交数据方案，包含了 Content-Type 和消息主体编码方式两部分。下面就正式开始介绍它们。</p>
+<blockquote>
+<p>个人理解：get请求其实就是将参数以key=value&amp;key=value的形式拼在url发往服务器，所以get请求没有那么多复杂的说法；而post请求规定提交的数据必须放在消息主体（entity-body）中，但没有对形式的规定，所以就有了各种各样的方式；</p>
+</blockquote>
+<h2 id="引出问题"><a href="#引出问题" class="headerlink" title="引出问题"></a>引出问题</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> ajax = <span class="keyword">new</span> XMLHttpRequest();</span><br><span class="line"><span class="keyword">var</span> data1 = <span class="string">&#x27;&#123;&quot;arr&quot;:[1,2,3,4,5],&quot;test&quot;:&quot;name&quot;&#125;&#x27;</span></span><br><span class="line"><span class="keyword">var</span> data2 = <span class="string">&#x27;name=jack&amp;age=998&#x27;</span></span><br><span class="line"><span class="comment">// 使用post请求</span></span><br><span class="line">ajax.open(<span class="string">&#x27;post&#x27;</span>, <span class="string">&#x27;http://localhost:8000/api/test/&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果 使用post发送数据 必须 设置 如下内容</span></span><br><span class="line"><span class="comment">// 修改了 发送给 服务器的 请求报文的 内容</span></span><br><span class="line"><span class="comment">// 如果需要像 HTML 表单那样 POST 数据，请使用 setRequestHeader() 来添加 HTTP 头。</span></span><br><span class="line"><span class="comment">// 然后在 send() 方法中规定您希望发送的数据：</span></span><br><span class="line">ajax.setRequestHeader(<span class="string">&quot;Content-type&quot;</span>, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>);</span><br><span class="line"><span class="comment">// 发送</span></span><br><span class="line"><span class="comment">// post请求 发送的数据 写在 send方法中</span></span><br><span class="line"><span class="comment">// 格式 name=jack&amp;age=18 字符串的格式;</span></span><br><span class="line"><span class="comment">// 不能直接发送一个对象，否则后端会变成[object Object]</span></span><br><span class="line">ajax.send(data2);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 注册事件</span></span><br><span class="line">ajax.onreadystatechange = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (ajax.readyState == <span class="number">4</span> &amp;&amp; ajax.status == <span class="number">200</span>) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(ajax.responseText);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，<code>ajax.send()</code>的内容可以是data1的格式（<code>JSON.stringfy()</code>得来），也可以是data2的格式（<code>qs.stringfy()</code>得来），两种的方式都可以；  </p>
+<blockquote>
+<p>另外ajax.send()不能直接发送对象，后端接受会变成[object Object]，而对于axios库，直接发送对象，它会自动转成json字符串；</p>
+</blockquote>
+<p>在后端为django的代码中测试  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span>(<span class="params">request</span>):</span></span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        <span class="built_in">print</span> request.POST.get(<span class="string">&#x27;arr&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span> request.body</span><br><span class="line">        data = &#123;</span><br><span class="line">            <span class="string">&#x27;code&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">            <span class="string">&#x27;msg&#x27;</span>: <span class="string">&#x27;this is a test&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;data&#x27;</span>: <span class="string">&#x27;POST&#x27;</span></span><br><span class="line">        &#125;</span><br><span class="line">      <span class="keyword">return</span> HttpResponse(json.dumps(data, cls=CJsonEncoder), content_type=<span class="string">&quot;application/json&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>如何是data1的格式就是json字符串的话，<code>request.POST</code>是无法获取到东西的，data2格式通过<code>request.POST</code>是可以获取到的，但前提是请求的<code>Content-type</code>必须设置为<code>application/x-www-form-urlencoded</code>,否则都获取不到结果，只能从request.body中获得原始数据；<br>之所以这样是因为django框架在处理响应时，只对<code>Content-type</code>为<code>application/x-www-form-urlencoded</code>的情况做了处理，（具体可以查看django的源码中<code>class HttpRequest(object)</code>对post的处理部分）<br>django之所以这么做，是因为什么呢？下面先说一下关于post的几种请求方式</p>
+<h2 id="application-x-www-form-urlencoded"><a href="#application-x-www-form-urlencoded" class="headerlink" title="application/x-www-form-urlencoded"></a>application/x-www-form-urlencoded</h2><p>这是post的默认请求方式，在post请求不设置<code>Content-type</code>时的默认值；  </p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;http://localhost:8000/api/test/&quot;</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span>&gt;</span></span><br><span class="line">  First name:<span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;firstname&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Mickey&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">br</span>&gt;</span> Last name:<span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;lastname&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Mouse&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">br</span>&gt;</span><span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;提交&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这也是原始提交表单的方式，在表单提交的方式里，浏览器会把表单里的数据，以<code>key=value&amp;key=value</code>的形式发送给服务器；个人理解，由于这种最初的提交方式,决定了<code>application/x-www-form-urlencoded</code>下对数据的处理;<br>所以，在ajax请求的年代，其实传哪种（data1和data2）格式都可以，不同的是，服务器是以<code>Content-type</code>的类型来决定如何处理数据的；  </p>
+<blockquote>
+<p>这种post的类型的时候可以向服务器发送数据，而数据的格式应为键值对<code>key=value&amp;key=value</code>，js对象可以通过<code>qs.stringfy()</code>来序列化得到;不过，qs在序列化数组的时候默认会序列化为<code>arr[]=value&amp;arr[]=value</code>的形式；这时需要配置下qs，指定数组的编码格式；否则后端获取不到该数组；  </p>
+</blockquote>
+<blockquote>
+<p>django接收数组的时候用<code>request.POST.getlist()</code>;如果前端序列化带了<code>[]</code>，后端也需要带，或者要前端序列化的时候去掉<code>[]</code>；</p>
+</blockquote>
+<p>指定数组的编码格式和对应的结果</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> params = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// indices(默认)</span></span><br><span class="line">qs.stringify(&#123;<span class="attr">a</span>: params&#125;, &#123;</span><br><span class="line">    <span class="attr">arrayFormat</span>: <span class="string">&#x27;indices&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// 结果是</span></span><br><span class="line"><span class="string">&#x27;a[0]=1&amp;a[1]=2&amp;a[2]=3&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// brackets </span></span><br><span class="line">qs.stringify(&#123;<span class="attr">a</span>: params&#125;, &#123;</span><br><span class="line">    <span class="attr">arrayFormat</span>: <span class="string">&#x27;brackets&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// 结果是</span></span><br><span class="line"><span class="string">&#x27;a[]=1&amp;a[]=2&amp;a[]=3&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// repeat</span></span><br><span class="line">qs.stringify(&#123;<span class="attr">a</span>: params&#125;, &#123;</span><br><span class="line">    <span class="attr">arrayFormat</span>: <span class="string">&#x27;repeat&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// 结果是</span></span><br><span class="line"><span class="string">&#x27;a=1&amp;a=2&amp;a=3&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="application-json"><a href="#application-json" class="headerlink" title="application/json"></a>application/json</h2><p>这种方式就是告诉服务器，传输的数据为json字符串，所以对应的数格式应为json字符串，js对象可以通过<code>JSON.stringfy()</code>来序列化得到；这是一种略新的格式，可能早期的ie等浏览器不支持 </p>
+<blockquote>
+<p>如果发送对象比较复杂比如<code>[&#123;&quot;id&quot;:&quot;001&quot;,&quot;name&quot;:&quot;小明&quot;&#125;,&#123;&quot;id&quot;:&quot;002&quot;,&quot;name&quot;:&quot;小军&quot;&#125;]</code>；这时候还是简单的用json字符串为好，表单提交的方式可能会造成后端解析困难的情况，另外也很难看懂结果;</p>
+</blockquote>
+<h2 id="multipart-form-data"><a href="#multipart-form-data" class="headerlink" title="multipart/form-data"></a>multipart/form-data</h2><p>这种类型主要用来上传文件（可上传多个），也可以发送键值对；（该内容后续展开）</p>
+<h2 id="text-plain-text-json-xml-html"><a href="#text-plain-text-json-xml-html" class="headerlink" title="text/plain (text/json/xml/html)"></a>text/plain (text/json/xml/html)</h2><p>数据以纯文本形式(text/json/xml/html)进行编码，其中不含任何控件或格式字符。postman软件里标的是RAW,<code>application/json</code>包含在RAW里；</p>
+<h2 id="binary"><a href="#binary" class="headerlink" title="binary"></a>binary</h2><p>暂没用过，只在postman中看到过，相当于<code>Content-Type:application/octet-stream</code>,从字面意思得知，只可以上传二进制数据，通常用来上传文件，由于没有键值，所以，一次只能上传一个文件。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/django/" rel="tag"># django</a>
+              <a href="/tags/http/" rel="tag"># http</a>
+              <a href="/tags/post/" rel="tag"># post</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/08/24/js%E5%8F%98%E9%87%8F%E5%9C%A8%E5%86%85%E5%AD%98%E7%9A%84%E5%AD%98%E6%94%BE%E8%A7%A3%E6%83%91/" rel="prev" title="js变量在内存的存放解惑">
+                  <i class="fa fa-chevron-left"></i> js变量在内存的存放解惑
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/09/06/django%E7%9A%84%E8%B7%A8%E5%9F%9F%E8%AF%B7%E6%B1%82%E8%AE%BE%E7%BD%AE/" rel="next" title="django的跨域请求设置">
+                  django的跨域请求设置 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">萌新</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
